@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TMDB 영화 종합정보</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: white;
+            margin: 0;
+            padding: 0;
+        }
+
+        .search-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #moviesContainer {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            padding: 20px;
+        }
+
+        .movie-card {
+            border: 1px solid burlywood;
+            border-radius: 8px;
+            margin: 10px;
+            padding: 10px;
+            width: 200px;
+        }
+
+        .movie-poster {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 10px;
+        }
+    </style>
+
+    <script>
+        const apiKey = "d121f36c6d0494d30382b9d0f91efedb";
+        const baseUrl = "https://api.themoviedb.org/3";
+        const posterBaseUrl = "https://image.tmdb.org/t/p/w500";
+
+
+        document.addEventListener('DOMContentLoaded', fetchPopularMovies);
+
+        function fetchPopularMovies() {
+            const url = `${baseUrl}/movie/popular?api_key=${apiKey}`;
+            fetch(url)
+                .then(response => response.json())
+                .then(data => displayMovies(data.results))
+                .catch(error => console.error('Error fetching popular movies:', error));
+        }
+
+        function displayMovies(movies) {
+            const moviesContainer = document.getElementById('moviesContainer');
+            moviesContainer.innerHTML = "";
+
+            movies.forEach(movie => {
+                const card = createMovieCard(movie);
+                moviesContainer.appendChild(card);
+            });
+        }
+
+        function createMovieCard(movie) {
+            const card = document.createElement('div');
+            card.className = 'movie-card';
+
+            const title = document.createElement('h3');
+            title.textContent = movie.title;
+
+            const summary = document.createElement('p');
+            summary.textContent = movie.overview;
+
+            const poster = document.createElement('img');
+            poster.src = `${posterBaseUrl}${movie.poster_path}`;
+            poster.alt = movie.title;
+            poster.className = 'movie-poster';
+
+            const rating = document.createElement('p');
+            rating.textContent = `평점: ${movie.vote_average}`;
+
+            card.appendChild(title);
+            card.appendChild(summary);
+            card.appendChild(poster);
+            card.appendChild(rating);
+
+            card.addEventListener('click', () => {
+                alert(`클릭한 영화 ID: ${movie.id}`);
+            });
+
+            return card;
+        }
+
+        function searchMovies() {
+            const searchInput = document.getElementById('searchInput');
+            const query = searchInput.value;
+
+            const url = `${baseUrl}/search/movie?api_key=${apiKey}&query=${query}`;
+            fetch(url)
+                .then(response => response.json())
+                .then(data => displayMovies(data.results))
+                .catch(error => console.error('Error searching movies:', error));
+        }
+
+    </script>
+</head>
+
+<body>
+        <div class="search-container">
+        <input type="text" id="searchInput" placeholder="검색어를 입력하세요">
+        <button type="button" class="btn btn-secondary" disabled>검색</button>
+    </div>
+    <div id="moviesContainer" class="movies-container"></div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
